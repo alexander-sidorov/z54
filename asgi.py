@@ -1,34 +1,17 @@
-import json
-import lessons
+from fastapi import FastAPI
+from fastapi import Query
+
+from lessons import task_3_1
+
+app = FastAPI()
 
 
-async def application(scope, receive, send) -> None:
-    if scope["type"] != "http":
-        return
+@app.get("/")
+def handler():
+    return "hello world"
 
-    path = scope["path"]
 
-    await send(
-        {
-            "headers": [
-                [b"content-type", b"application/json"],
-            ],
-            "status": 200,
-            "type": "http.response.start",
-        }
-    )
-
-    payload = {
-        "hello": "world",
-        "path": path,
-    }
-
-    body = json.dumps(payload).encode()
-
-    await send(
-        {
-            "body": body,
-            "type": "http.response.body",
-        }
-    )
-
+@app.get("/task/3/1/")
+def handler(name: str = Query(...)):
+    result = task_3_1(name)
+    return {"result": result}
