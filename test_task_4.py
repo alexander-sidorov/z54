@@ -1,18 +1,22 @@
 import httpx
+import pytest
+
+from asgi import app
 
 
-def test():
-    url = "http://localhost:8000/task/4"
+@pytest.mark.asyncio
+async def test():
+    url = "/task/4"
 
-    with httpx.Client() as client:
-        resp = client.post(url, json=1)
+    async with httpx.AsyncClient(app=app, base_url="http://asgi") as client:
+        resp: httpx.Response = await client.post(url, json=1)
         assert resp.status_code == 200
         assert resp.json() == "1"
 
-        resp = client.post(url, json=1)
+        resp = await client.post(url, json=1)
         assert resp.status_code == 200
         assert resp.json() == "1"
 
-        resp = client.post(url, json="stop")
+        resp = await client.post(url, json="stop")
         assert resp.status_code == 200
         assert resp.json() == 2
