@@ -4,8 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+asyncpg = "*"
 fastapi = "*"
-psycopg2-binary = "*"
 uvicorn = "*"
 
 [dev-packages]
