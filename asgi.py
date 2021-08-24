@@ -18,13 +18,11 @@ app = FastAPI()
 
 
 def execute_sql(sql: str) -> List[tuple]:
-    dbname = "tms"
-    host = "localhost"
-    password = "alex"
-    user = "alex"
-    dsn = f"{user=} {password=} {host=} {dbname=}"
-
     rows = []
+
+    dsn = os.getenv("DATABASE_URL", "").replace("postgresql", "postgres")
+    if not dsn:
+        return rows
 
     with closing(psycopg2.connect(dsn)) as connection:
         with closing(connection.cursor()) as cursor:

@@ -12,6 +12,7 @@ uvicorn = "*"
 black = "==21.7b0"
 httpx = "*"
 ipython = "*"
+pytest = "*"
 
 [requires]
 python_version = "3.9"
