@@ -1,2 +1,6 @@
-def task_3_1(name: str):
+from typing import Optional
+
+
+def task_3(name: Optional[str] = None):
+    name = name or "👺"
     return f"Hello, [{name}]!"

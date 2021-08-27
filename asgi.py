@@ -1,29 +1,50 @@
+from typing import Optional
+
 from fastapi import Body
 from fastapi import FastAPI
-from fastapi import Query
 from starlette.requests import Request
+from starlette.responses import HTMLResponse
 from starlette.responses import Response
 
 import db
-from lessons import task_3_1
+from lessons import task_3
 from users import gen_random_name
 from users import get_user
+from util import apply_cache_headers
+from util import static_response
 
 app = FastAPI()
 
 
-@app.get("/task/3/1")
-async def handler(name: str = Query(...)):
-    result = task_3_1(name)
-    return {"result": result}
+@app.get("/", response_class=HTMLResponse)
+async def _(response: Response):
+    apply_cache_headers(response)
+
+    return static_response("index.html", response_cls=HTMLResponse)
+
+
+@app.get("/img", response_class=Response)
+async def _(response: Response):
+    apply_cache_headers(response)
+
+    return static_response("image.jpg", binary=True)
+
+
+@app.get("/js", response_class=Response)
+async def _(response: Response):
+    apply_cache_headers(response)
+
+    return static_response("index.js")
+
+
+@app.post("/task/3")
+async def _(name: Optional[str] = Body(default=None)):
+    result = task_3(name)
+    return {"data": {"greeting": result}}
 
 
 @app.post("/task/4")
-async def handler(
-    request: Request,
-    response: Response,
-    data: str = Body(...),
-):
+async def _(request: Request, response: Response, data: str = Body(...)):
     user = get_user(request) or gen_random_name()
     response.set_cookie("user", user)
 
