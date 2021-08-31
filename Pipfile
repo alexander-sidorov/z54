@@ -6,12 +6,12 @@ name = "pypi"
 [packages]
 asyncpg = "*"
 fastapi = "*"
+httpx = "*"
 uvicorn = "*"
 
 [dev-packages]
 black = "==21.7b0"
 httpie = "*"
-httpx = "*"
 ipython = "*"
 pytest = "*"
 pytest-asyncio = "*"
