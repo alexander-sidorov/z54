@@ -17,12 +17,7 @@ def apply_cache_headers(response: Response) -> None:
     response.headers["Cache-Control"] = ",".join(cache_params)
 
 
-def static_response(
-    file_name: str,
-    *,
-    binary: bool = False,
-    response_cls: Type[Response] = Response,
-) -> Response:
+def static_response(file_name: str) -> Response:
     def get_file_path_safe() -> Path:
         file_path = Path(file_name).resolve()
         if not file_path.is_file():
@@ -32,16 +27,12 @@ def static_response(
             )
         return file_path
 
-    def calc_mode() -> str:
-        return "rb" if binary else "r"
-
     def calc_media_type() -> str:
         return mimetypes.guess_type(file_name)[0] or "text/plain"
 
     file_path = get_file_path_safe()
-    mode = calc_mode()
     media_type = calc_media_type()
 
-    with file_path.open(mode) as stream:
+    with file_path.open("rb") as stream:
         content = stream.read()
-        return response_cls(content=content, media_type=media_type)
+        return Response(content=content, media_type=media_type)

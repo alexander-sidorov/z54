@@ -7,6 +7,7 @@ from starlette.responses import HTMLResponse
 from starlette.responses import Response
 
 import db
+import tg
 from lessons import task_3
 from users import gen_random_name
 from users import get_user
@@ -16,18 +17,24 @@ from util import static_response
 app = FastAPI()
 
 
+@app.get("/tg/about")
+def _():
+    r = tg.getMe()
+    return r
+
+
 @app.get("/", response_class=HTMLResponse)
 async def _(response: Response):
     apply_cache_headers(response)
 
-    return static_response("index.html", response_cls=HTMLResponse)
+    return static_response("index.html")
 
 
 @app.get("/img", response_class=Response)
 async def _(response: Response):
     apply_cache_headers(response)
 
-    return static_response("image.jpg", binary=True)
+    return static_response("image.jpg")
 
 
 @app.get("/js", response_class=Response)
