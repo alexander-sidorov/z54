@@ -1,6 +1,7 @@
+import hmac
 import mimetypes
+import os
 from pathlib import Path
-from typing import Type
 
 from fastapi import HTTPException
 from starlette import status
@@ -36,3 +37,14 @@ def static_response(file_name: str) -> Response:
     with file_path.open("rb") as stream:
         content = stream.read()
         return Response(content=content, media_type=media_type)
+
+
+def authorize(token: str) -> None:
+    exc = HTTPException(status_code=404, detail="not found")
+    expected_token = os.getenv("ADMIN_TOKEN")
+    if not expected_token:
+        raise exc
+
+    tokens_are_equal = hmac.compare_digest(token, expected_token)
+    if not tokens_are_equal:
+        raise exc
