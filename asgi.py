@@ -1,3 +1,4 @@
+import traceback
 from typing import Optional
 
 import httpx
@@ -44,6 +45,24 @@ async def _(
         "ok": webhook_set,
         "webhook": whi,
     }
+
+
+@app.post("/tg/xxxx")
+async def _(
+    client: httpx.AsyncClient = tg.Telegram,
+    update: tg.Update = Body(...),
+):
+    try:
+        await tg.sendMessage(
+            client,
+            tg.SendMessageRequest(
+                chat_id=update.message.chat.id,
+                reply_to_message_id=update.message.message_id,
+                text=task_3(update.message.text),
+            ),
+        )
+    except Exception:
+        traceback.print_exc()
 
 
 @app.get("/")

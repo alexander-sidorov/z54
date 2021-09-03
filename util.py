@@ -48,3 +48,8 @@ def authorize(token: str) -> None:
     tokens_are_equal = hmac.compare_digest(token, expected_token)
     if not tokens_are_equal:
         raise exc
+
+
+def update_forward_refs(klass):
+    klass.update_forward_refs()
+    return klass
