@@ -97,22 +97,21 @@ async function setUpTask4() {
 
 
 async function setUpTg() {
-    let inputWebhook = document.getElementById("id_webhook");
-    let labelWebhook = document.querySelector("#tg label[for=id_webhook]");
+    let spanWebhook = document.getElementById("id_webhook");
     let inputToken = document.getElementById("id_token");
     let button = document.querySelector("#tg button");
 
-    const setLabel = (wh) => {
-        labelWebhook.textContent = `Вебхук: ${wh.url}`;
+    const showWebhookUrl = (wh) => {
+        spanWebhook.textContent = `Вебхук: ${wh.url}`;
     }
 
     const wh = await getWebhook();
-    setLabel(wh);
+    showWebhookUrl(wh);
 
     button.addEventListener("click", async function (event) {
-        const wh = await setWebhook(inputWebhook.value, inputToken.value);
-        inputWebhook.value = inputToken.value = "";
-        setLabel(wh);
+        const wh = await setWebhook(`https://${window.location.host}`, inputToken.value);
+        inputToken.value = "";
+        showWebhookUrl(wh);
     });
 }
 
