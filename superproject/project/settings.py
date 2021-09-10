@@ -18,6 +18,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "task4",
 ]
 
 MIDDLEWARE = [
@@ -50,8 +51,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "project.wsgi.application"
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-assert DATABASE_URL, "no DATABASE_URL provided"
+DATABASE_URL = os.getenv("DATABASE_URL") or "sqlite://db.sqlite3"
 
 DATABASES = {
     "default": dj_database_url.parse(DATABASE_URL),

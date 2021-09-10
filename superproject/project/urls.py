@@ -8,7 +8,11 @@ def hello_world(request: HttpRequest):
     return HttpResponse("hello world")
 
 
+from task4.views import view
+
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("hw/", hello_world),
+    path("task4/", view),
 ]
