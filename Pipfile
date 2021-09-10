@@ -5,9 +5,11 @@ name = "pypi"
 
 [packages]
 asyncpg = "*"
+dj-database-url = "*"
 django = "*"
 fastapi = "*"
 httpx = "*"
+psycopg2 = "*"
 uvicorn = "*"
 
 [dev-packages]
