@@ -20,13 +20,7 @@ from task4.models import Numbers
 
 
 def get_user_name(request: HttpRequest) -> Optional[str]:
-    if (
-        not hasattr(request, "session")
-        or not request.session
-        or not (name := request.session.get("name"))
-    ):
-        return None
-
+    name = request.headers.get("x-user") or None
     return name
 
 
@@ -37,11 +31,8 @@ def create_new_user_name() -> str:
     return "-".join(word() for _ in "123")
 
 
-def set_user_name(request: HttpRequest, name: str) -> None:
-    if not hasattr(request, "session"):
-        return
-
-    request.session["name"] = name
+def set_user_name(response: HttpResponse, name: str) -> None:
+    response.headers["x-user"] = name
 
 
 def add_number(name: str, number: int):
@@ -86,30 +77,29 @@ class UnprocessableEntityResponse(JsonResponse):
 @csrf_exempt
 @require_http_methods(["POST"])
 def task(request: HttpRequest) -> HttpResponse:
-    name = get_user_name(request) or create_new_user_name()
-    set_user_name(request, name)
+    name = get_user_name(request)
+    if not name:
+        return UnprocessableEntityResponse("header X-USER is not set", safe=False)
 
     try:
         payload = parse_payload(request)
     except ValueError as err:
-        return UnprocessableEntityResponse(str(err), safe=False)
-
-    if isinstance(payload, int):
-        current = add_number(name, payload)
-    elif payload == "stop":
-        current = add_number(name, 0)
+        response = UnprocessableEntityResponse(str(err), safe=False)
     else:
-        current = None
+        if isinstance(payload, int):
+            current = add_number(name, payload)
+        elif payload == "stop":
+            current = add_number(name, 0)
+        else:
+            current = None
 
-    return JsonResponse(
-        current,
-        safe=False,
-        headers={
-            "Access-Control-Allow-Headers": "Origin, Content-Type, X-Auth-Token",
-            "Access-Control-Allow-Methods": "GET, POST, PATCH, PUT, DELETE, OPTIONS",
-            "Access-Control-Allow-Origin": "*",
-        },
-    )
+        response = JsonResponse(
+            current,
+            safe=False,
+        )
+
+    set_user_name(response, name)
+    return response
 
 
 @csrf_exempt
