@@ -4,6 +4,7 @@ import httpx
 from fastapi import Body
 from fastapi import FastAPI
 from fastapi import Header
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.requests import Request
 from fastapi.responses import Response
 
@@ -20,6 +21,14 @@ from util import safe
 from util import static_response
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins="*",
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/tg/about")
