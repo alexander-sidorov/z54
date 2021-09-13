@@ -26,7 +26,7 @@ class Check(models.Model):
     at = models.DateTimeField(default=utcnowtz)
     ok = models.BooleanField(default=False)
     description = models.TextField(blank=True, null=True)
-    ms = models.FloatField(blank=True, null=True)
+    ms = models.IntegerField(blank=True, null=True)
 
 
 class CheckT(BaseModel):
@@ -37,7 +37,7 @@ class CheckT(BaseModel):
     at: datetime = Field(default_factory=utcnowtz)
     ok: bool = Field(False)
     description: Optional[str] = Field(None)
-    ms: float = Field(0.0)
+    ms: int = Field(0)
 
     class Config:
         orm_mode = True

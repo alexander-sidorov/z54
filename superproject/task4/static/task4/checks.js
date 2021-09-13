@@ -1,5 +1,5 @@
 async function fetchWithTimeout(resource, options = {}) {
-    const {timeout = 1000} = options;
+    const {timeout = 4000} = options;
 
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
@@ -16,47 +16,171 @@ async function fetchWithTimeout(resource, options = {}) {
 }
 
 
-async function checkGet(
-    url,
-    params = {method: "GET"},
-    expectedCode = 200,
-    expectedPayload = null
-) {
-    const req = `${params.method} ${url}`;
+async function checkEdgeCases(url) {
+    // 1. check method
+    let resp = await fetchWithTimeout(url, {method: "GET"});
+    let req = `GET ${url}\n\n\n\n\n\n------------\n`;
 
-    const resp = await fetchWithTimeout(url, params);
-    if (resp.status !== expectedCode) {
-        return {
-            ok: false,
-            description: `Сервис ДОЛЖЕН вернуть ${expectedCode} на запрос "${req}", а вернул: ${resp.status} ${resp.statusText}`,
-        };
+    if (resp.status !== 405) {
+        throw Error(
+            req +
+            `Сервер должен был вернуть статус 405,` +
+            ` а вернул ${resp.status} ${resp.statusText}.` +
+            `\nТолько метод POST должен быть разрешён для этой задачи.`
+        );
     }
 
-    const body = await resp.text();
+    // 2. check positive range
+    let n = 101;
+    let body = JSON.stringify(n);
+    resp = await fetchWithTimeout(url, {method: "POST", body: body});
+    req = `POST ${url}\n\n${body}\n\n\n\n------------\n`;
+
+    if (resp.status !== 422) {
+        throw Error(
+            req +
+            `Сервер должен был вернуть статус 422,` +
+            ` а вернул ${resp.status} ${resp.statusText}.` +
+            `\nЧисло ${n} должно быть за границей допустимого.`
+        );
+    }
+
+    // 3. check negative range
+    n = -101;
+    body = JSON.stringify(n);
+    resp = await fetchWithTimeout(url, {method: "POST", body: body});
+    req = `POST ${url}\n\n${body}\n\n\n\n------------\n`;
+
+    if (resp.status !== 422) {
+        throw Error(
+            req +
+            `Сервер должен был вернуть статус 422,` +
+            ` а вернул ${resp.status} ${resp.statusText}.` +
+            `\nЧисло ${n} должно быть за границей допустимого.`
+        );
+    }
+
+    // 3. check unknown input
+    n = Math.floor(Math.random() * 10).toString();
+    body = JSON.stringify(n);
+    resp = await fetchWithTimeout(url, {method: "POST", body: body});
+    req = `POST ${url}\n\n${body}\n\n\n\n------------\n`;
+
+    if (resp.status !== 422) {
+        throw Error(
+            req +
+            `Сервер должен был вернуть статус 422,` +
+            ` а вернул ${resp.status} ${resp.statusText}.` +
+            `\nВвод ${body} должен восприниматься сервером как неизвестный и неподдерживаемый.`
+        );
+    }
+}
+
+
+async function checkHappyPath(url) {
+    // 1. send 'stop'
+    let body = JSON.stringify("stop");
+    let resp = await fetchWithTimeout(url, {method: "POST", body: body});
+    let req = `POST ${url}\n\n${body}\n\n\n\n------------\n`;
+
+    if (resp.status !== 200) {
+        throw Error(
+            req +
+            `Сервер должен был вернуть статус 200,` +
+            ` а вернул ${resp.status} ${resp.statusText}.`
+        );
+    }
+
+    body = await resp.text();
     let payload = null;
     try {
         payload = JSON.parse(body);
     } catch (e) {
     }
 
-    if (payload !== expectedPayload) {
-        return {
-            ok: false,
-            description: `Сервис ДОЛЖЕН вернуть ${JSON.stringify(expectedPayload)} на запрос "${req}", а вернул: ${payload}`,
-        };
+    if ((typeof payload) !== "number") {
+        throw Error(
+            req +
+            `Сервер должен был вернуть число,` +
+            ` а вернул ${body}.`
+        );
     }
 
-    return null;
+    // 2. send number
+    const n = Math.floor(Math.random() * 100);
+    body = JSON.stringify(n);
+    resp = await fetchWithTimeout(url, {method: "POST", body: body});
+    req = `POST ${url}\n\n${body}\n\n\n\n------------\n`;
+
+    if (resp.status !== 200) {
+        throw Error(
+            req +
+            `Сервер должен был вернуть статус 200,` +
+            ` а вернул ${resp.status} ${resp.statusText}.`
+        );
+    }
+
+    body = await resp.text();
+    let payload2 = null;
+    try {
+        payload2 = JSON.parse(body);
+    } catch (e) {
+    }
+
+    if ((typeof payload2) !== "number") {
+        throw Error(
+            req +
+            `Сервер должен был вернуть число,` +
+            ` а вернул ${body}.`
+        );
+    }
+    if (payload2 !== (payload + n)) {
+        throw Error(
+            req +
+            `Сервер должен был вернуть ${payload + n} = ${payload} + ${n},` +
+            ` а вернул ${payload2}.`
+        );
+    }
+
+    // 3. send -number
+    body = JSON.stringify(-n);
+    resp = await fetchWithTimeout(url, {method: "POST", body: body});
+    req = `POST ${url}\n\n${body}\n\n\n\n------------\n`;
+
+    if (resp.status !== 200) {
+        throw Error(
+            req +
+            `Сервер должен был вернуть статус 200,` +
+            ` а вернул ${resp.status} ${resp.statusText}.`
+        );
+    }
+
+    body = await resp.text();
+    let payload3 = null;
+    try {
+        payload3 = JSON.parse(body);
+    } catch (e) {
+    }
+
+    if ((typeof payload3) !== "number") {
+        throw Error(
+            req +
+            `Сервер должен был вернуть число,` +
+            ` а вернул ${body}.`
+        );
+    }
+    if (payload3 !== payload) {
+        throw Error(
+            req +
+            `Сервер должен был вернуть ${payload} = ${payload} + ${-n} + ${n},` +
+            ` а вернул ${payload3}.`
+        );
+    }
 }
 
 
-const CHECKS = [
-    {func: checkGet, params: {method: "GET"}, expectedStatus: 200, expectedPayload: null},
-]
-
-
 async function check(service) {
-    let path = "/task/4/";
+    let path = "/task4/";
     let scheme = "http://";
 
     if (service.endsWith("/")) {
@@ -74,31 +198,18 @@ async function check(service) {
         ms: performance.now(),
     }
 
-    let req = "";
-
     try {
-        for (const checkSuite of CHECKS) {
-            req = `${checkSuite.params.method} ${url}`;
-            const resp = await checkSuite.func(
-                url,
-                checkSuite.params,
-                checkSuite.expectedStatus,
-                checkSuite.expectedPayload,
-            );
-            if (resp) {
-                result = {...result, ...resp};
-                break;
-            }
-        }
+        await checkEdgeCases(url);
+        await checkHappyPath(url);
     } catch (e) {
         result = {
             ...result,
             ok: false,
-            description: `невозможно сделать запрос ${req}. Пояснение от браузера: "${e.name === "AbortError" ? "таймаут" : e.message}"`,
+            description: e.message,
         }
     }
 
-    result.ms = performance.now() - result.ms;
+    result.ms = Math.floor(performance.now() - result.ms);
     return result;
 }
 
@@ -180,9 +291,17 @@ async function setUp() {
         const result = await check(service);
         await saveCheckResult(name, service, result);
 
-        spanOk.textContent = result.ok ? "всё работает" : "есть проблемы";
-        spanOk.style.color = result.ok ? "green" : "red";
-        spanDescription.textContent = result.description;
+        if (result.ok) {
+            spanOk.textContent = "всё работает";
+            spanOk.style.color = "green";
+            spanDescription.parentElement.hidden = true;
+        } else {
+            spanOk.textContent = "есть проблемы";
+            spanOk.style.color = "red";
+            spanDescription.textContent = result.description;
+            spanDescription.parentElement.hidden = false;
+        }
+
         spanTiming.textContent = result.ms.toFixed(0).toString();
 
         sectionResults.hidden = false;

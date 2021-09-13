@@ -11,6 +11,7 @@ from django.http import HttpResponse
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 from ipware import get_client_ip
 
 from task4.models import Check
@@ -83,7 +84,8 @@ class UnprocessableEntityResponse(JsonResponse):
 
 
 @csrf_exempt
-def view(request: HttpRequest) -> HttpResponse:
+@require_http_methods(["POST"])
+def task(request: HttpRequest) -> HttpResponse:
     name = get_user_name(request) or create_new_user_name()
     set_user_name(request, name)
 
@@ -138,6 +140,7 @@ def check(request: HttpRequest) -> HttpResponse:
     return JsonResponse(resp_payload, status=200 if resp_payload["ok"] else 500)
 
 
+@csrf_exempt
 def index(request: HttpRequest) -> HttpResponse:
     if request.method.upper() == "GET":
         return render(request, "task4/index.html")

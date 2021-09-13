@@ -1,9 +1,9 @@
 from django.urls import path
 
-from task4.views import check
 from task4.views import index
+from task4.views import task
 
 urlpatterns = [
-    path("", index),
-    path("check/", check),
+    path("", task),
+    path("check/", index),
 ]

@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
                 ("at", models.DateTimeField(default=task4.models.utcnowtz)),
                 ("ok", models.BooleanField(default=False)),
                 ("description", models.TextField(blank=True, null=True)),
-                ("ms", models.FloatField(blank=True, null=True)),
+                ("ms", models.IntegerField(blank=True, null=True)),
             ],
         ),
     ]
