@@ -6,9 +6,9 @@ from pathlib import Path
 from typing import Type
 
 from fastapi import HTTPException
+from fastapi import status
+from fastapi.responses import Response
 from pydantic import BaseModel
-from starlette import status
-from starlette.responses import Response
 
 from config import settings
 
@@ -24,8 +24,10 @@ def apply_cache_headers(response: Response) -> None:
 
 
 def static_response(file_name: str) -> Response:
+    here = Path(__file__).parent.resolve()
+
     def get_file_path_safe() -> Path:
-        file_path = Path(file_name).resolve()
+        file_path = here / file_name
         if not file_path.is_file():
             raise HTTPException(
                 detail=f"file {file_name!r} not found",

@@ -1,16 +1,16 @@
-"""
-ASGI config for project project.
-
-It exposes the ASGI callable as a module-level variable named ``application``.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/3.2/howto/deployment/asgi/
-"""
-
 import os
 
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
+from fastapi_app import app as application_fastapi
 
-application = get_asgi_application()
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
+fastapi_routes = {route.path for route in application_fastapi.routes}
+application_django = get_asgi_application()
+
+
+async def application(scope, send, receive):
+    if scope["path"] in fastapi_routes:
+        return await application_fastapi(scope, send, receive)
+    else:
+        return await application_django(scope, send, receive)

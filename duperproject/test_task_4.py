@@ -3,7 +3,7 @@ from random import randint
 import httpx
 import pytest
 
-from asgi import app
+from fastapi_app import app
 
 
 @pytest.mark.asyncio

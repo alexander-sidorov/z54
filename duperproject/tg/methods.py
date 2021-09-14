@@ -3,16 +3,16 @@ from typing import Optional
 import httpx
 
 from config import settings
-from tg.types import GetMeResponse
-from tg.types import GetWebhookInfoResponse
-from tg.types import Message
-from tg.types import Response
-from tg.types import SendMessageRequest
-from tg.types import SendMessageResponse
-from tg.types import SetWebhookResponse
-from tg.types import Type
-from tg.types import User
-from tg.types import WebhookInfo
+from .types import GetMeResponse
+from .types import GetWebhookInfoResponse
+from .types import Message
+from .types import Response
+from .types import SendMessageRequest
+from .types import SendMessageResponse
+from .types import SetWebhookResponse
+from .types import Type
+from .types import User
+from .types import WebhookInfo
 
 
 async def telegram_client() -> httpx.AsyncClient:

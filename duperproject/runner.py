@@ -1,6 +1,6 @@
 import uvicorn
 
-from asgi import app
+from fastapi_app import app
 
 if __name__ == "__main__":
     uvicorn.run(
