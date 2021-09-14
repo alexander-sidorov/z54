@@ -1,4 +1,4 @@
-async function fetchWithTimeout(resource, options = {}) {
+async function fetchWithTimeout(resource, options = {}, name = "") {
     const {timeout = 4000} = options;
 
     const controller = new AbortController();
@@ -6,8 +6,9 @@ async function fetchWithTimeout(resource, options = {}) {
 
     const response = await fetch(resource, {
         ...options,
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json', "x-user": name},
         mode: 'cors',
+        credentials: 'include',
         signal: controller.signal
     });
     clearTimeout(id);
@@ -16,9 +17,9 @@ async function fetchWithTimeout(resource, options = {}) {
 }
 
 
-async function checkEdgeCases(url) {
+async function checkEdgeCases(url, name) {
     // 1. check method
-    let resp = await fetchWithTimeout(url, {method: "GET"});
+    let resp = await fetchWithTimeout(url, {method: "GET"}, name);
     let req = `GET ${url}\n\n\n\n\n\n------------\n`;
 
     if (resp.status !== 405) {
@@ -33,7 +34,7 @@ async function checkEdgeCases(url) {
     // 2. check positive range
     let n = 101;
     let body = JSON.stringify(n);
-    resp = await fetchWithTimeout(url, {method: "POST", body: body});
+    resp = await fetchWithTimeout(url, {method: "POST", body: body}, name);
     req = `POST ${url}\n\n${body}\n\n\n\n------------\n`;
 
     if (resp.status !== 422) {
@@ -48,7 +49,7 @@ async function checkEdgeCases(url) {
     // 3. check negative range
     n = -101;
     body = JSON.stringify(n);
-    resp = await fetchWithTimeout(url, {method: "POST", body: body});
+    resp = await fetchWithTimeout(url, {method: "POST", body: body}, name);
     req = `POST ${url}\n\n${body}\n\n\n\n------------\n`;
 
     if (resp.status !== 422) {
@@ -63,7 +64,7 @@ async function checkEdgeCases(url) {
     // 3. check unknown input
     n = Math.floor(Math.random() * 10).toString();
     body = JSON.stringify(n);
-    resp = await fetchWithTimeout(url, {method: "POST", body: body});
+    resp = await fetchWithTimeout(url, {method: "POST", body: body}, name);
     req = `POST ${url}\n\n${body}\n\n\n\n------------\n`;
 
     if (resp.status !== 422) {
@@ -77,10 +78,10 @@ async function checkEdgeCases(url) {
 }
 
 
-async function checkHappyPath(url) {
+async function checkHappyPath(url, name) {
     // 1. send 'stop'
     let body = JSON.stringify("stop");
-    let resp = await fetchWithTimeout(url, {method: "POST", body: body});
+    let resp = await fetchWithTimeout(url, {method: "POST", body: body}, name);
     let req = `POST ${url}\n\n${body}\n\n\n\n------------\n`;
 
     if (resp.status !== 200) {
@@ -109,7 +110,7 @@ async function checkHappyPath(url) {
     // 2. send number
     const n = Math.floor(Math.random() * 100);
     body = JSON.stringify(n);
-    resp = await fetchWithTimeout(url, {method: "POST", body: body});
+    resp = await fetchWithTimeout(url, {method: "POST", body: body}, name);
     req = `POST ${url}\n\n${body}\n\n\n\n------------\n`;
 
     if (resp.status !== 200) {
@@ -144,7 +145,7 @@ async function checkHappyPath(url) {
 
     // 3. send -number
     body = JSON.stringify(-n);
-    resp = await fetchWithTimeout(url, {method: "POST", body: body});
+    resp = await fetchWithTimeout(url, {method: "POST", body: body}, name);
     req = `POST ${url}\n\n${body}\n\n\n\n------------\n`;
 
     if (resp.status !== 200) {
@@ -179,7 +180,7 @@ async function checkHappyPath(url) {
 }
 
 
-async function check(service) {
+async function check(service, name) {
     let path = "/task4/";
     let scheme = "http://";
 
@@ -199,8 +200,8 @@ async function check(service) {
     }
 
     try {
-        await checkEdgeCases(url);
-        await checkHappyPath(url);
+        await checkEdgeCases(url, name);
+        await checkHappyPath(url, name);
     } catch (e) {
         result = {
             ...result,
@@ -214,7 +215,7 @@ async function check(service) {
 }
 
 
-async function saveCheckResult(name, service, result) {
+async function saveCheckResult(service, name, result) {
     const path = '/task4/check/';
     const payload = {
         description: result.description || null,
@@ -288,8 +289,8 @@ async function setUp() {
 
         await storeUserData(service, name);
 
-        const result = await check(service);
-        await saveCheckResult(name, service, result);
+        const result = await check(service, name);
+        await saveCheckResult(service, name, result);
 
         if (result.ok) {
             spanOk.textContent = "всё работает";
