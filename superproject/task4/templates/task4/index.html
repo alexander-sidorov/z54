@@ -1,4 +1,5 @@
 {% load static %}
+{% load tz %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -129,6 +130,29 @@
                         </ol>
                     </li>
                 </ol>
+            </section>
+            <section class="col-4">
+                <h2>Десятка проверок</h2>
+                <table class="table table-borderless table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Юзер</th>
+                        <th scope="col">Сервис</th>
+                        <th scope="col">Время</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for check in object_list %}
+                        <tr class="{{ check.ok|yesno:"table-success," }}">
+                            <th scope="row">{{ forloop.counter }}</th>
+                            <td>{{ check.name }}</td>
+                            <td>{{ check.service }}</td>
+                            <td>{{ check.at|timezone:"Europe/Minsk"|date:"H:i @ j E Y, l" }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </section>
         </div>
     </article>

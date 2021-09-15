@@ -134,5 +134,11 @@ def check(request: HttpRequest) -> HttpResponse:
 @csrf_exempt
 def index(request: HttpRequest) -> HttpResponse:
     if request.method.upper() == "GET":
-        return render(request, "task4/index.html")
+        return render(
+            request,
+            "task4/index.html",
+            {
+                "object_list": Check.objects.order_by("-at")[:10],
+            },
+        )
     return check(request)
