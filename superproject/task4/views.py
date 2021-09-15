@@ -6,6 +6,7 @@ from typing import Optional
 from typing import Tuple
 from typing import Union
 
+from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest
 from django.http import HttpResponse
 from django.http import JsonResponse
@@ -79,7 +80,7 @@ class UnprocessableEntityResponse(JsonResponse):
 def task(request: HttpRequest) -> HttpResponse:
     name = get_user_name(request)
     if not name:
-        return UnprocessableEntityResponse("header X-USER is not set", safe=False)
+        raise PermissionDenied(json.dumps("header X-USER is not set"))
 
     try:
         payload = parse_payload(request)

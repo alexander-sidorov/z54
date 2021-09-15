@@ -3,32 +3,136 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
     <title>Проверка Task4</title>
+    <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
+          integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" rel="stylesheet">
+    <script crossorigin="anonymous"
+            integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0"
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        section {
+            padding-bottom: 2em;
+            padding-left: 40em;
+            padding-right: 1em;
+        }
+    </style>
 </head>
 <body>
-<h1>Проверка Task 4</h1>
-<hr>
-<section>
-    <h2>Что тестим?</h2>
-    <div>
-        <label for="id_service">Твой сервис: </label>
-        <input id="id_service" placeholder="http://твой.сервер" type="url">
-    </div>
-    <div>
-        <label for="id_name">Представься: </label>
-        <input id="id_name" placeholder="Иван Иванов" type="text">
-    </div>
-    <button id="id_check">Проверить мой сервис</button>
-</section>
-<section hidden id="id_results">
-    <h2>Результат</h2>
-    <p>Статус: <span id="id_ok"></span></p>
-    <div>
-        <span>Пояснение: </span>
-        <pre id="id_description" style="border: 1px solid red"></pre>
-    </div>
-    <p>Тайминг: <span id="id_timing"></span> мс</p>
-</section>
+<div class="container">
+    <h1>Проверка Task 4</h1>
+    <hr>
+    <article>
+        <div class="row">
+            <section class="col">
+                <h2>Что тестим?</h2>
+                <div class="mb-3">
+                    <label class="form-label" for="id_service">Сервис: </label>
+                    <input class="form-control" id="id_service" placeholder="локалхост - ок!" type="url">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="id_name">Пользователь: </label>
+                    <input class="form-control" id="id_name" placeholder="пойдёт как X-USER" type="text">
+                </div>
+                <div class="mb-3">
+                    <button class="btn btn-primary" id="id_check">Проверить</button>
+                </div>
+            </section>
+            <section class="col" hidden id="id_results">
+                <h2>Результат</h2>
+                <p>Статус: <span id="id_ok"></span></p>
+                <div>
+                    <span>Пояснение: </span>
+                    <pre id="id_description" style="border: 1px solid red; padding: 1em"></pre>
+                </div>
+                <p>Тайминг: <span id="id_timing"></span> мс</p>
+            </section>
+        </div>
+        <div class="row">
+            <section class="col">
+                <h2>ФОРМУЛА УСПЕХА</h2>
+                <p>
+                    Успех &mdash; это когда ваш сервис работает правильно (см. ниже)
+                    и решает следующую задачу:
+                </p>
+                <blockquote class="blockquote">
+                    <p>Если сервису прислать число, то сервис его как-то запомнит.</p>
+                    <p>Если сервису прислать слово <code>"stop"</code>,<br>то сервис выведет текущую сумму из предыдущих
+                       чисел.</p>
+                </blockquote>
+                <p>Это общая идея, а детали реализации смотри дальше.</p>
+                <p>
+                    <span class="badge rounded-pill bg-warning text-dark">⚠</span>
+                    <i>МОЙ сервис тестирует ВАШ сервис!</i>
+                    <br>
+                    <span class="badge rounded-pill bg-warning text-dark">⚠</span>
+                    <i>Пункты ниже относятся к ВАШЕМУ сервису.</i>
+                </p>
+                <p>
+                    Пункты ДОЛЖНЫ быть реализованы в полном объёме.
+                    <a href="https://datatracker.ietf.org/doc/html/rfc2119">
+                        <span class="badge bg-info text-dark">RFC 2119</span>
+                    </a>
+                </p>
+                <ol>
+                    <li>Сервис ОБЯЗАН быть онлайн.</li>
+                    <li>Сервис ОБЯЗАН ответить на запрос не дольше чем за 4 секунды.</li>
+                    <li>
+                        <p>Сервис ОБЯЗАН принимать HTTP запросы на путь <code>/task4/</code>.</p>
+                        <p><i>Пункты ниже относятся к <code>/task4/</code>.</i></p>
+                        <ol>
+                            <li>
+                                Сервис ОБЯЗАН разрешать только метод <code>POST</code>.
+                                <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST"><sup>🔎</sup></a>
+                                <br>
+                                На любые другие методы сервис ОБЯЗАН ответить статусом:
+                                <code>405 Method Not Allowed</code>.
+                                <a href="https://httpstatuses.com/405"><sup>🔎</sup></a>
+                            </li>
+                            <li>Сервис ОБЯЗАН читать имя пользователя из заголовка
+                                <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers"><sup>🔎</sup></a>
+                                <code>X-USER</code>.
+                                <br>
+                                Если заголовока нет, или он пустой, пользователь считается анонимным.
+                                <br>
+                                На запрос анонимного пользователя сервер ОБЯЗАН ответить статусом:
+                                <code>403 Forbidden</code>.
+                                <a href="https://httpstatuses.com/403"><sup>🔎</sup></a>
+                            </li>
+                            <li>Сервис ОБЯЗАН принимать данные
+                                в теле запроса
+                                <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Messages"><sup>🔎</sup></a>
+                                только в формате JSON.
+                                <a href="https://www.json.org/json-ru.html"><sup>🔎</sup></a>
+                                <br>
+                                На запрос без тела сервис ОБЯЗАН ответить статусом:
+                                <code>422 Unprocessable Entity</code>.
+                                <a href="https://httpstatuses.com/422"><sup>🔎</sup></a>
+                                <br>
+                                На запрос с телом не в формате JSON сервис ОБЯЗАН ответить статусом:
+                                <code>422 Unprocessable Entity</code>.
+                                <a href="https://httpstatuses.com/422"><sup>🔎</sup></a>
+                            </li>
+                            <li>
+                                Сервис ОБЯЗАН накапливать числа или подсчитывать сумму только для чисел определённого
+                                пользователя.
+                                <br>
+                                Сервис ОБЯЗАН НЕ выдавать данные одного пользователя другому пользователю.
+                            </li>
+                            <li>Сервис ОБЯЗАН принимать только строку <code>"stop"</code>
+                                или целые числа в диапазоне: <code>[-100, 100]</code>.
+                                <br>
+                                На любые другие данные сервис ОБЯЗАН ответить статусом:
+                                <code>422 Unprocessable Entity</code>.
+                                <a href="https://httpstatuses.com/422"><sup>🔎</sup></a>
+                            </li>
+                        </ol>
+                    </li>
+                </ol>
+            </section>
+        </div>
+    </article>
+</div>
 <script defer src="{% static 'task4/checks.js' %}"></script>
 </body>
 </html>

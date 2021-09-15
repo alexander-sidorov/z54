@@ -4,42 +4,73 @@ async function fetchWithTimeout(resource, options = {}, name = "") {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
 
+    let headers = new Headers();
+    headers.set("Content-Type", "application/json");
+
+    if (name && name.length) {
+        headers.set("X-User", name);
+    }
+
+    let request = `${options.method} ${resource} HTTP/1.1\n`;
+    headers.forEach((value, header) => {
+        request += `${header}: ${value}\n`
+    })
+
+    if (options.body) {
+        request += `\n${options.body}`;
+    }
+
+    request += '\n\n\n\n----------------\n\n';
+
     const response = await fetch(resource, {
         ...options,
-        headers: {'Content-Type': 'application/json', "x-user": name},
+        headers: headers,
         mode: 'cors',
         credentials: 'include',
         signal: controller.signal
     });
     clearTimeout(id);
 
-    return response;
+    return {response: response, request: request};
 }
 
 
 async function checkEdgeCases(url, name) {
     // 1. check method
-    let resp = await fetchWithTimeout(url, {method: "GET"}, name);
-    let req = `GET ${url}\n\n\n\n\n\n------------\n`;
+    let rr = await fetchWithTimeout(url, {method: "GET"}, name);
+    let resp = rr.response;
 
     if (resp.status !== 405) {
         throw Error(
-            req +
+            rr.request +
             `Сервер должен был вернуть статус 405,` +
             ` а вернул ${resp.status} ${resp.statusText}.` +
             `\nТолько метод POST должен быть разрешён для этой задачи.`
         );
     }
 
+    // 1. check anonymous
+    rr = await fetchWithTimeout(url, {method: "POST", body: "0"});
+    resp = rr.response;
+
+    if (resp.status !== 403) {
+        throw Error(
+            rr.request +
+            `Сервер должен был вернуть статус 403,` +
+            ` а вернул ${resp.status} ${resp.statusText}.` +
+            `\nАнонимным пользователям должно быть запрещено делать запросы.`
+        );
+    }
+
     // 2. check positive range
     let n = 101;
     let body = JSON.stringify(n);
-    resp = await fetchWithTimeout(url, {method: "POST", body: body}, name);
-    req = `POST ${url}\n\n${body}\n\n\n\n------------\n`;
+    rr = await fetchWithTimeout(url, {method: "POST", body: body}, name);
+    resp = rr.response;
 
     if (resp.status !== 422) {
         throw Error(
-            req +
+            rr.request +
             `Сервер должен был вернуть статус 422,` +
             ` а вернул ${resp.status} ${resp.statusText}.` +
             `\nЧисло ${n} должно быть за границей допустимого.`
@@ -49,12 +80,12 @@ async function checkEdgeCases(url, name) {
     // 3. check negative range
     n = -101;
     body = JSON.stringify(n);
-    resp = await fetchWithTimeout(url, {method: "POST", body: body}, name);
-    req = `POST ${url}\n\n${body}\n\n\n\n------------\n`;
+    rr = await fetchWithTimeout(url, {method: "POST", body: body}, name);
+    resp = rr.response;
 
     if (resp.status !== 422) {
         throw Error(
-            req +
+            rr.request +
             `Сервер должен был вернуть статус 422,` +
             ` а вернул ${resp.status} ${resp.statusText}.` +
             `\nЧисло ${n} должно быть за границей допустимого.`
@@ -64,12 +95,12 @@ async function checkEdgeCases(url, name) {
     // 3. check unknown input
     n = Math.floor(Math.random() * 10).toString();
     body = JSON.stringify(n);
-    resp = await fetchWithTimeout(url, {method: "POST", body: body}, name);
-    req = `POST ${url}\n\n${body}\n\n\n\n------------\n`;
+    rr = await fetchWithTimeout(url, {method: "POST", body: body}, name);
+    resp = rr.response;
 
     if (resp.status !== 422) {
         throw Error(
-            req +
+            rr.request +
             `Сервер должен был вернуть статус 422,` +
             ` а вернул ${resp.status} ${resp.statusText}.` +
             `\nВвод ${body} должен восприниматься сервером как неизвестный и неподдерживаемый.`
@@ -81,12 +112,12 @@ async function checkEdgeCases(url, name) {
 async function checkHappyPath(url, name) {
     // 1. send 'stop'
     let body = JSON.stringify("stop");
-    let resp = await fetchWithTimeout(url, {method: "POST", body: body}, name);
-    let req = `POST ${url}\n\n${body}\n\n\n\n------------\n`;
+    let rr = await fetchWithTimeout(url, {method: "POST", body: body}, name);
+    let resp = rr.response;
 
     if (resp.status !== 200) {
         throw Error(
-            req +
+            rr.request +
             `Сервер должен был вернуть статус 200,` +
             ` а вернул ${resp.status} ${resp.statusText}.`
         );
@@ -101,7 +132,7 @@ async function checkHappyPath(url, name) {
 
     if ((typeof payload) !== "number") {
         throw Error(
-            req +
+            rr.request +
             `Сервер должен был вернуть число,` +
             ` а вернул ${body}.`
         );
@@ -110,12 +141,12 @@ async function checkHappyPath(url, name) {
     // 2. send number
     const n = Math.floor(Math.random() * 100);
     body = JSON.stringify(n);
-    resp = await fetchWithTimeout(url, {method: "POST", body: body}, name);
-    req = `POST ${url}\n\n${body}\n\n\n\n------------\n`;
+    rr = await fetchWithTimeout(url, {method: "POST", body: body}, name);
+    resp = rr.response;
 
     if (resp.status !== 200) {
         throw Error(
-            req +
+            rr.request +
             `Сервер должен был вернуть статус 200,` +
             ` а вернул ${resp.status} ${resp.statusText}.`
         );
@@ -145,12 +176,12 @@ async function checkHappyPath(url, name) {
 
     // 3. send -number
     body = JSON.stringify(-n);
-    resp = await fetchWithTimeout(url, {method: "POST", body: body}, name);
-    req = `POST ${url}\n\n${body}\n\n\n\n------------\n`;
+    rr = await fetchWithTimeout(url, {method: "POST", body: body}, name);
+    resp = rr.response;
 
     if (resp.status !== 200) {
         throw Error(
-            req +
+            rr.request +
             `Сервер должен был вернуть статус 200,` +
             ` а вернул ${resp.status} ${resp.statusText}.`
         );
@@ -225,19 +256,23 @@ async function saveCheckResult(service, name, result) {
         service: service,
     }
 
-    const resp = await fetchWithTimeout(
+    const rr = await fetchWithTimeout(
         path, {
             method: "POST",
             body: JSON.stringify(payload),
         });
-    const resp2 = resp.clone();
+    const resp = rr.response;
 
     try {
-        const checkObj = await resp.json();
-        console.debug(`${resp.status} ${resp.statusText}\n${JSON.stringify(checkObj)}`);
+        const body = await resp.text();
+        try {
+            const checkObj = JSON.parse(body);
+            console.debug(`${resp.status} ${resp.statusText}\n${JSON.stringify(checkObj)}`);
+        } catch (e) {
+            console.debug(`json error:\n${resp2.status} ${resp2.statusText}\n${body}\n`);
+        }
     } catch (e) {
-        const body = await resp2.text();
-        console.debug(`${resp2.status} ${resp2.statusText}\n${body}\n`);
+        console.debug(`fetch error:\n${resp2.status} ${resp2.statusText}\n`);
     }
 
 }
