@@ -161,14 +161,14 @@ async function checkHappyPath(url, name) {
 
     if ((typeof payload2) !== "number") {
         throw Error(
-            req +
+            rr.request +
             `Сервер должен был вернуть число,` +
             ` а вернул ${body}.`
         );
     }
     if (payload2 !== (payload + n)) {
         throw Error(
-            req +
+            rr.request +
             `Сервер должен был вернуть ${payload + n} = ${payload} + ${n},` +
             ` а вернул ${payload2}.`
         );
@@ -196,14 +196,14 @@ async function checkHappyPath(url, name) {
 
     if ((typeof payload3) !== "number") {
         throw Error(
-            req +
+            rr.request +
             `Сервер должен был вернуть число,` +
             ` а вернул ${body}.`
         );
     }
     if (payload3 !== payload) {
         throw Error(
-            req +
+            rr.request +
             `Сервер должен был вернуть ${payload} = ${payload} + ${-n} + ${n},` +
             ` а вернул ${payload3}.`
         );
