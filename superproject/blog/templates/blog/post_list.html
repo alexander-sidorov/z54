@@ -6,9 +6,11 @@
 </head>
 <body>
 <article>
+    <h1>All posts</h1>
+    <hr>
     {% for post in object_list %}
         <section id="id_post_{{ post.pk }}">
-            <h1>{{ post.title }}</h1>
+            <h2>{{ post.title }}</h2>
             <p>{{ post.content|default:"(no content)" }}</p>
         </section>
     {% endfor %}
