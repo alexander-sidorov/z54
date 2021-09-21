@@ -1,7 +1,5 @@
 import json
 import traceback
-from random import choice
-from string import ascii_lowercase
 from typing import Optional
 from typing import Tuple
 from typing import Union
@@ -11,8 +9,10 @@ from django.http import HttpRequest
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.views.generic import ListView
 from ipware import get_client_ip
 
 from task4.models import Check
@@ -23,13 +23,6 @@ from task4.models import Numbers
 def get_user_name(request: HttpRequest) -> Optional[str]:
     name = request.headers.get("x-user") or None
     return name
-
-
-def create_new_user_name() -> str:
-    def word() -> str:
-        return "".join(choice(ascii_lowercase) for _ in range(6))
-
-    return "-".join(word() for _ in "123")
 
 
 def set_user_name(response: HttpResponse, name: str) -> None:
@@ -131,9 +124,8 @@ def check(request: HttpRequest) -> HttpResponse:
     return JsonResponse(resp_payload, status=200 if resp_payload["ok"] else 500)
 
 
-@csrf_exempt
-def index(request: HttpRequest) -> HttpResponse:
-    if request.method.upper() == "GET":
+class IndexView(View):
+    def get(self, request: HttpRequest) -> HttpResponse:
         return render(
             request,
             "task4/index.html",
@@ -141,4 +133,11 @@ def index(request: HttpRequest) -> HttpResponse:
                 "object_list": Check.objects.order_by("-at")[:10],
             },
         )
-    return check(request)
+
+    def post(self, request: HttpRequest) -> HttpResponse:
+        return check(request)
+
+
+class ShowNumbersView(ListView):
+    template_name = "task4/numbers.html"
+    model = Numbers

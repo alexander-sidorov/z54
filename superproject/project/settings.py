@@ -4,6 +4,8 @@ from pathlib import Path
 import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+PROJECT_DIR = BASE_DIR / "project"
+PROJECT_TEMPLATES_DIR = PROJECT_DIR / "tttt"
 
 SECRET_KEY = "1"
 
@@ -23,6 +25,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "corsheaders",
+    "blog",
     "task4",
 ]
 
@@ -43,7 +46,9 @@ ROOT_URLCONF = "project.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [
+            PROJECT_TEMPLATES_DIR,
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

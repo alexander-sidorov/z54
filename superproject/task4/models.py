@@ -19,7 +19,13 @@ def utcnowtz() -> datetime:
     return Delorean().datetime
 
 
+class CheckManager(models.Manager):
+    pass
+
+
 class Check(models.Model):
+    objects = CheckManager()
+
     name = models.TextField(blank=True, null=True)
     ip = models.TextField(blank=True, null=True)
     service = models.TextField(blank=True, null=True)
