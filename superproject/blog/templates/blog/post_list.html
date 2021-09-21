@@ -10,7 +10,7 @@
     <hr>
     {% for post in object_list %}
         <section id="id_post_{{ post.pk }}">
-            <h2>{{ post.title }}</h2>
+            <a href="{{ post.get_absolute_url }}"><h2>{{ post.title }}</h2></a>
             <p>{{ post.content|default:"(no content)" }}</p>
         </section>
     {% endfor %}
