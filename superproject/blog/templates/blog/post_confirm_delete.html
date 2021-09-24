@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<p>Удаляем {{ object }}</p>
+<p>Ты уверен?</p>
+<form method="POST">
+    {% csrf_token %}
+    <button type="submit">Да</button>
+</form>
+</body>
+</html>

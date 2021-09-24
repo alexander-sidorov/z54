@@ -1,4 +1,5 @@
 from django.views.generic import CreateView
+from django.views.generic import DeleteView
 from django.views.generic import DetailView
 from django.views.generic import ListView
 from django.views.generic import UpdateView
@@ -25,3 +26,8 @@ class CreatePostView(CreateView):
 class UpdatePostView(UpdateView):
     model = Post
     fields = "__all__"
+
+
+class DeletePostView(DeleteView):
+    model = Post
+    success_url = "/blog/"

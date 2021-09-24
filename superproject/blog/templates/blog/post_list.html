@@ -14,15 +14,10 @@
             <a href="{{ post.get_absolute_url }}"><h2>{{ post.title }}</h2></a>
             <p>{{ post.content|default:"(no content)" }}</p>
         </section>
+    {% empty %}
+        <p>(no posts)</p>
+        <p><a href="/blog/new/">(create)</a></p>
     {% endfor %}
 </article>
-<script>
-    document.addEventListener("DOMContentLoaded", (evt) => {
-        let article = document.querySelector("article");
-        if (!article.querySelector("section")) {
-            article.textContent = "(no posts)"
-        }
-    });
-</script>
 </body>
 </html>
