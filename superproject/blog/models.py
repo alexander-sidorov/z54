@@ -8,3 +8,8 @@ class Post(models.Model):
 
     def get_absolute_url(self) -> str:
         return f"/blog/{self.pk}/"
+
+    def __repr__(self):
+        return f"{'' if self.hidden else '👀'}{self.__class__.__name__}(id={self.pk}, title={self.title!r})"
+
+    __str__ = __repr__
