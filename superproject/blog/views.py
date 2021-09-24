@@ -1,6 +1,7 @@
 from django.views.generic import CreateView
 from django.views.generic import DetailView
 from django.views.generic import ListView
+from django.views.generic import UpdateView
 
 from blog.models import Post
 
@@ -17,5 +18,10 @@ class SinglePostView(DetailView):
 
 
 class CreatePostView(CreateView):
+    model = Post
+    fields = "__all__"
+
+
+class UpdatePostView(UpdateView):
     model = Post
     fields = "__all__"

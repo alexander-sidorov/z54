@@ -8,6 +8,7 @@
 <article>
     <h1>{{ object.title }}</h1>
     <a href="/blog/">(back to all posts)</a>
+    <a href="/blog/{{ object.pk }}/update">(edit post)</a>
     <hr>
     <p>{{ post.content|default:"(no content)" }}</p>
 </article>
