@@ -7,7 +7,7 @@
 <body>
 <article>
     <h1>All posts</h1>
-        <a href="/blog/new/">New post</a>
+        <a href="{% url 'blog:new' %}">New post</a>
     <hr>
     {% for post in object_list %}
         <section id="id_post_{{ post.pk }}">
@@ -16,7 +16,7 @@
         </section>
     {% empty %}
         <p>(no posts)</p>
-        <p><a href="/blog/new/">(create)</a></p>
+        <p><a href="{% url 'blog:new' %}">(create)</a></p>
     {% endfor %}
 </article>
 </body>
