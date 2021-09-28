@@ -122,3 +122,5 @@ CORS_ALLOW_HEADERS = [
     "x-requested-with",
     "x-user",
 ]
+
+LOGIN_REDIRECT_URL = "/blog/"
