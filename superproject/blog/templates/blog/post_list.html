@@ -17,6 +17,7 @@
         <section id="id_post_{{ post.pk }}">
             <a href="{{ post.get_absolute_url }}"><h2>{{ post.title }}</h2></a>
             <p>{{ post.content|default:"(no content)" }}</p>
+            <p>Author: {{ post.author }}</p>
         </section>
     {% empty %}
         <p>(no posts)</p>

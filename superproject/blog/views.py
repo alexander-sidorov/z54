@@ -9,7 +9,7 @@ from blog.models import Post
 
 
 class MyView:
-    fields = "__all__"
+    fields = ["title", "content", "hidden"]
     model = Post
     success_url = reverse_lazy("blog:all")
 
@@ -24,7 +24,11 @@ class SinglePostView(MyView, DetailView):
 
 
 class CreatePostView(MyView, CreateView):
-    pass
+    def form_valid(self, form):
+        post = form.save(commit=False)
+        post.author = self.request.user
+        post.save()
+        return super().form_valid(form)
 
 
 class UpdatePostView(MyView, UpdateView):
