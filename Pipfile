@@ -13,11 +13,12 @@ django-ipware = "*"
 fastapi = "*"
 httpx = "*"
 psycopg2 = "*"
+python-dotenv = "*"
 uvicorn = "*"
 whitenoise = "*"
 
 [dev-packages]
-black = "==21.7b0"
+black = "==21.9b0"
 httpie = "*"
 ipython = "*"
 pytest = "*"
