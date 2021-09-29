@@ -3,13 +3,6 @@
     <module name="z54" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
-    <envs>
-      <env name="PYTHONUNBUFFERED" value="1" />
-      <env name="DATABASE_URL" value="postgres://alex:alex@localhost:5432/tms" />
-      <env name="TG_BOT_TOKEN" value="1937411411:AAFYJ7QgCNKLu0OrxHgviuKvIPU5N2uORR8" />
-      <env name="ADMIN_TOKEN" value="123" />
-      <env name="WEBHOOK_SECRET" value="_local" />
-    </envs>
     <option name="SDK_HOME" value="" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
     <option name="IS_MODULE_SDK" value="true" />
