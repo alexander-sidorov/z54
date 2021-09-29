@@ -6,6 +6,6 @@ from django.urls import path
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("blog/", include("blog.urls")),
+    path("login/", LoginView.as_view(), name="login"),
     path("task4/", include("task4.urls")),
-    path("login/", LoginView.as_view()),
 ]

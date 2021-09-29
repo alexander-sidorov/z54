@@ -15,6 +15,15 @@ class Post(models.Model):
         return reverse_lazy("blog:single", kwargs={"pk": self.pk})
 
     def __repr__(self):
-        return f"{'🔒' if self.hidden else ''}{self.__class__.__name__}(id={self.pk}, title={self.title!r})"
+        lock_sign = "🔒" if self.hidden else ""
+        class_name = self.__class__.__name__
+        kwargs = {
+            "pk": self.pk,
+            "title": self.title,
+        }
+        kwargs_text_parts = (f"{arg}={value!r}" for arg, value in kwargs.items())
+        kwargs_text = ", ".join(kwargs_text_parts)
+
+        return f"{lock_sign}{class_name}({kwargs_text})"
 
     __str__ = __repr__

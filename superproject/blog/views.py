@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from django.views.generic import DeleteView
@@ -8,22 +9,22 @@ from django.views.generic import UpdateView
 from blog.models import Post
 
 
-class MyView:
+class BlogMixin:
     fields = ["title", "content", "hidden"]
     model = Post
     success_url = reverse_lazy("blog:all")
 
 
-class AllPostsView(MyView, ListView):
+class AllPostsView(BlogMixin, ListView):
     def get_queryset(self):
         return super().get_queryset().filter(hidden=False)
 
 
-class SinglePostView(MyView, DetailView):
+class SinglePostView(BlogMixin, DetailView):
     pass
 
 
-class CreatePostView(MyView, CreateView):
+class CreatePostView(LoginRequiredMixin, BlogMixin, CreateView):
     def form_valid(self, form):
         post = form.save(commit=False)
         post.author = self.request.user
@@ -31,9 +32,9 @@ class CreatePostView(MyView, CreateView):
         return super().form_valid(form)
 
 
-class UpdatePostView(MyView, UpdateView):
+class UpdatePostView(LoginRequiredMixin, BlogMixin, UpdateView):
     pass
 
 
-class DeletePostView(MyView, DeleteView):
+class DeletePostView(LoginRequiredMixin, BlogMixin, DeleteView):
     pass

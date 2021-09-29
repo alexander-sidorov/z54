@@ -2,20 +2,20 @@ import os
 from pathlib import Path
 
 import dj_database_url
+from django.urls import reverse_lazy
+from dotenv import load_dotenv
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv()
+
+BASE_DIR = Path(__file__).parent.parent.resolve()
+REPO_DIR = BASE_DIR.parent
 PROJECT_DIR = BASE_DIR / "project"
-PROJECT_TEMPLATES_DIR = PROJECT_DIR / "tttt"
 
-SECRET_KEY = "1"
+SECRET_KEY = os.getenv("SECRET_KEY")
 
-DEBUG = bool(os.getenv("DEBUG"))
+DEBUG = bool(os.getenv("DEBUG", "").lower() in {"1", "on", "true", "yes"})
 
-ALLOWED_HOSTS = [
-    "127.0.0.1",
-    "localhost",
-    "z54z54.herokuapp.com",
-]
+ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -47,7 +47,7 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
-            PROJECT_TEMPLATES_DIR,
+            PROJECT_DIR / "templates",
         ],
         "APP_DIRS": True,
         "OPTIONS": {
@@ -96,11 +96,9 @@ USE_TZ = True
 
 STATIC_URL = "/s/"
 
-STATICFILES_DIRS = [
-    # PROJECT_DIR / "static",
-]
+STATICFILES_DIRS = []
 
-STATIC_ROOT = BASE_DIR.parent / ".static"
+STATIC_ROOT = REPO_DIR / ".static"
 
 if not DEBUG:
     STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
@@ -123,4 +121,4 @@ CORS_ALLOW_HEADERS = [
     "x-user",
 ]
 
-LOGIN_REDIRECT_URL = "/blog/"
+LOGIN_REDIRECT_URL = reverse_lazy("blog:all")
