@@ -5,7 +5,7 @@
     <title>Title</title>
 </head>
 <body>
-{% if user.is_authenticated %}
+{% if object.author == user %}
     <p>Удаляем {{ object }}</p>
     <p>Ты уверен?</p>
     <form method="POST">

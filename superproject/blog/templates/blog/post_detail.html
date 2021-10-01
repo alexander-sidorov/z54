@@ -8,8 +8,10 @@
 <article>
     <h1>{{ object.title }}</h1>
     <a href="{% url 'blog:all' %}">(back to all posts)</a>
-    <a href="{% url 'blog:update' object.pk %}">(edit post)</a>
-    <a href="{% url 'blog:delete' object.pk %}">(delete post)</a>
+    {% if object.author == user %}
+        <a href="{% url 'blog:update' object.pk %}">(edit post)</a>
+        <a href="{% url 'blog:delete' object.pk %}">(delete post)</a>
+    {% endif %}
     <hr>
     <p>{{ post.content|default:"(no content)" }}</p>
 </article>

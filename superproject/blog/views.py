@@ -8,6 +8,8 @@ from django.views.generic import UpdateView
 
 from blog.models import Post
 
+PAGE_SIZE = 50
+
 
 class BlogMixin:
     fields = ["title", "content", "hidden"]
@@ -15,9 +17,15 @@ class BlogMixin:
     success_url = reverse_lazy("blog:all")
 
 
+class OwnerMixin:
+    def get_queryset(self):
+        x = super().get_queryset().filter(author=self.request.user)
+        return x
+
+
 class AllPostsView(BlogMixin, ListView):
     def get_queryset(self):
-        return super().get_queryset().filter(hidden=False)
+        return super().get_queryset().filter(hidden=False).order_by("pk")[:PAGE_SIZE]
 
 
 class SinglePostView(BlogMixin, DetailView):
@@ -32,9 +40,9 @@ class CreatePostView(LoginRequiredMixin, BlogMixin, CreateView):
         return super().form_valid(form)
 
 
-class UpdatePostView(LoginRequiredMixin, BlogMixin, UpdateView):
+class UpdatePostView(LoginRequiredMixin, BlogMixin, OwnerMixin, UpdateView):
     pass
 
 
-class DeletePostView(LoginRequiredMixin, BlogMixin, DeleteView):
+class DeletePostView(LoginRequiredMixin, BlogMixin, OwnerMixin, DeleteView):
     pass
