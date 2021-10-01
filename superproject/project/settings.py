@@ -24,8 +24,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
     "corsheaders",
-    'django_extensions',
+    "django_extensions",
     "blog",
     "task4",
 ]
@@ -85,6 +86,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+if DEBUG:
+    AUTH_PASSWORD_VALIDATORS = []
+
 LANGUAGE_CODE = "en-us"
 
 TIME_ZONE = "UTC"
@@ -123,3 +127,13 @@ CORS_ALLOW_HEADERS = [
 ]
 
 LOGIN_REDIRECT_URL = reverse_lazy("blog:all")
+LOGOUT_REDIRECT_URL = reverse_lazy("blog:all")
+
+
+REST_FRAMEWORK = {
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly",
+    ],
+    "PAGE_SIZE": 100,
+}
